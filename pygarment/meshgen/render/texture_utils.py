@@ -16,7 +16,10 @@ def texture_mesh_islands(
         background_img_path=None,
         background_resolution=1.,
         uv_padding=3, 
-        mat_name='islands_texture'
+        mat_name='islands_texture',
+
+        out_texture_image_path_replace: Path = None,
+        out_fabric_tex_image_path_replace: Path = None, 
 ):
     """
         Returns updated uv coordinates (properly normalized and aligned with the created texture)
@@ -48,9 +51,13 @@ def texture_mesh_islands(
 
     # Save mtl is requested
     if out_mtl_file_path:
+        if out_texture_image_path_replace is None:
+            texture_img_path = out_fabric_tex_image_path.name if out_fabric_tex_image_path is not None else out_texture_image_path.name
+        else:
+            texture_img_path = out_fabric_tex_image_path_replace if out_fabric_tex_image_path_replace is not None else out_texture_image_path_replace
         save_texture_mtl(
             out_mtl_file_path, 
-            out_fabric_tex_image_path.name if out_fabric_tex_image_path is not None else out_texture_image_path.name, 
+            texture_img_path, 
             mat_name=mat_name)
 
     return uv_list
@@ -155,6 +162,19 @@ def create_UV_island_texture(
             * boundary_width -- width of the boundary outline 
             * dpi -- resolution of the output image
     """
+    # print(
+    #     boundary_uv_to_draw,
+    #     width, height,
+    #     texture_image_path,
+    #     boundary_width,
+    #     boundary_color,
+    #     dpi,
+    #     color_alpha,
+    #     background_alpha,
+    #     background_img_path,
+    #     background_resolution,
+    #     preserve_alpha
+    # )
     n_components = len(boundary_uv_to_draw)
 
     # Figure size

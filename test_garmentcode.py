@@ -2,6 +2,9 @@ from datetime import datetime
 import shutil
 from pathlib import Path
 import yaml
+import sys
+
+sys.path.insert(0, '/is/cluster/fast/sbian/github/GarmentCodeV2')
 
 from assets.garment_programs.meta_garment import MetaGarment
 from assets.bodies.body_params import BodyParameters
@@ -25,8 +28,7 @@ if __name__ == '__main__':
     body = BodyParameters(bodies_measurements[body_to_use])
 
     design_files = {
-        't-shirt': './assets/design_params/t-shirt.yaml',
-        # Add paths HERE to load other parameters
+        'shirt': './assets/design_params/t-shirt.yaml',
     }
     designs = {}
     for df in design_files:
@@ -45,7 +47,7 @@ if __name__ == '__main__':
         sys_props = Properties('./system.json')
         folder = pattern.serialize(
             Path(sys_props['output']), 
-            tag='_' + datetime.now().strftime("%y%m%d-%H-%M-%S"), 
+            tag='', 
             to_subfolder=True, 
             with_3d=False, with_text=False, view_ids=False,
             with_printable=True

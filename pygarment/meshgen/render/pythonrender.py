@@ -128,6 +128,7 @@ def render(
         paths: PathCofig, 
         render_props=None
     ):
+    # print(f"PYRENDER !!!!!!!!!!!!!!!!!!!!!!!!!!1")
     if render_props and 'resolution' in render_props:
         view_width, view_height = render_props['resolution']
     else:

@@ -775,11 +775,12 @@ class BoxMesh(wrappers.VisPattern):
             panel.gen_panel_mesh(self.mesh_resolution)
 
             # Sanity check 
-            if not panel.is_manifold():
-                raise DegenerateTrianglesError(
-                    f'{self.__class__.__name__}::ERROR::{self.name}::{panel.panel_name}:'
-                    ':panel contains degenerate triangles'
-                )
+            # if not panel.is_manifold():
+            #     # raise DegenerateTrianglesError(
+            #     #     f'{self.__class__.__name__}::ERROR::{self.name}::{panel.panel_name}:'
+            #     #     ':panel contains degenerate triangles'
+            #     # )
+            #     self.panels.pop(panelname)
 
     # !SECTION
     # SECTION -- Merge mesh vertices in stitches
@@ -1523,7 +1524,9 @@ class BoxMesh(wrappers.VisPattern):
             dpi=uv_config['dpi'], 
             background_img_path=uv_config['fabric_grain_texture_path'],
             background_resolution=uv_config['fabric_grain_resolution'],
-            mat_name=mat_name
+            mat_name=mat_name,
+            out_texture_image_path_replace=self.paths.g_texture_replace,
+            out_fabric_tex_image_path_replace=self.paths.g_texture_fabric_replace,
         )
         save_obj(
             self.paths.g_box_mesh, 

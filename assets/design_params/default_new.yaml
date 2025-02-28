@@ -1,7 +1,7 @@
 design:
   meta:
     upper:
-      v: Shirt
+      v: null 
       range:
       - FittedShirt
       - Shirt
@@ -34,8 +34,8 @@ design:
     waist:
       v: 1.0
       range:
-      - 1.0
-      - 2
+      - 0.8
+      - 1.2
       type: float
       default_prob: 0.7
     width:
@@ -44,6 +44,13 @@ design:
       - 0.1
       - 1.
       type: float
+      default_prob: 0.5
+    height:
+      v: 0
+      range:
+      - -5
+      - 12
+      type: int
       default_prob: 0.5
   shirt:
     strapless:
@@ -63,7 +70,7 @@ design:
     width:
       v: 1.05
       range:
-      - 1.0
+      - 0.8
       - 1.3
       type: float
       default_prob: 0.4
@@ -74,6 +81,13 @@ design:
       - 1.6
       type: float
       default_prob: 0.4
+    openfront:
+      v: false
+      range:
+      - true
+      - false
+      type: bool
+      default_prob: 0.75
   collar:
     f_collar:
       v: CircleNeckHalf
@@ -212,7 +226,7 @@ design:
         default_prob: 0.6
   sleeve:
     sleeveless:
-      v: false
+      v: true
       range:
       - true
       - false
@@ -227,10 +241,10 @@ design:
       type: select
       default_prob: 0.7
     length:
-      v: 1
+      v: 0.3
       range:
       - 0.1
-      - 1.15
+      - 1.2
       type: float
     connecting_width:
       v: 0.2  
@@ -240,7 +254,7 @@ design:
       type: float
       default_prob: 0.6
     end_width:
-      v: 0.5
+      v: 1.0
       range:
       - 0.2
       - 2
@@ -824,7 +838,7 @@ design:
     width:
       v: 1.0
       range:
-      - 1.0
+      - 0.5
       - 1.5
       type: float
       default_prob: 0.5

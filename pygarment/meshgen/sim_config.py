@@ -10,7 +10,10 @@ class PathCofig:
                  in_element_path, out_path, in_name, out_name=None, 
                  body_name='', samples_name='', default_body=True,
                  smpl_body=False,
-                 add_timestamp=False):
+                 add_timestamp=False,
+                 system_path=None,
+                 easy_texture_path='',
+                 file_name=None):
         """Specify 
             * in_element_path
             * our_path -- dataset level output path
@@ -18,11 +21,16 @@ class PathCofig:
             * samples_name -- specify to indicate use of body sampling (reading body name from measurments file)
         """
 
-        self._system = Properties('./system.json')  # TODOlOW More stable path?
+        if system_path is None:
+            system_path = './system.json'
+        self._system = Properties(system_path)  # TODOlOW More stable path?
         self._body_name = body_name
         self._samples_folder_name = samples_name
         self._use_default_body = default_body
         self.use_smpl_seg = smpl_body
+        if easy_texture_path is None:
+            easy_texture_path = ''
+        self.easy_texture_path = easy_texture_path
 
         # Tags
         if out_name is None:
@@ -31,6 +39,7 @@ class PathCofig:
         self.out_folder_tag = f'{out_name}_{datetime.now().strftime("%y%m%d-%H-%M-%S")}' if add_timestamp else out_name
         self.sim_tag = out_name 
         self.boxmesh_tag = out_name
+        self.file_name = file_name
 
         # Base paths
         self.input = Path(in_element_path)
@@ -64,7 +73,10 @@ class PathCofig:
             self._body_name = body_dict['body']['body_sample']
 
         self.in_body_obj = self.bodies_path / f'{self._body_name}.obj'
-        self.in_g_spec = self.input / f'{self.in_tag}_specification.json'
+        if self.file_name is not None:
+            self.in_g_spec = self.input / self.file_name
+        else:
+            self.in_g_spec = self.input / f'{self.in_tag}_specification.json'
         self.body_seg = Path(self._system['bodies_default_path']) / ('ggg_body_segmentation.json' if not self.use_smpl_seg else 'smpl_vert_segmentation.json')
         self.in_design_params = self.input / 'design_params.yaml'
 
@@ -77,6 +89,13 @@ class PathCofig:
         self.g_vert_labels = self.out_el / f'{self.boxmesh_tag}_vertex_labels.yaml'
         self.g_texture_fabric = self.out_el / f'{self.boxmesh_tag}_texture_fabric.png'
         self.g_texture = self.out_el / f'{self.boxmesh_tag}_texture.png'
+        if len(self.easy_texture_path) > 1:
+            self.g_texture_fabric_replace = self.easy_texture_path
+            self.g_texture_replace = self.easy_texture_path
+        else:
+            self.g_texture_fabric_replace = None
+            self.g_texture_replace = None
+
         self.g_mtl = self.out_el / f'{self.boxmesh_tag}_material.mtl'
         
     def update_in_copies_paths(self):

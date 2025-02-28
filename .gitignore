@@ -28,3 +28,7 @@ tmp*
 *tmp*.mb
 Logs*
 output*
+
+try_imgs/
+try_imgs2/
+summaryfolder/

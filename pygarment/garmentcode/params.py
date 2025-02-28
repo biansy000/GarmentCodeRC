@@ -71,6 +71,8 @@ class DesignSampler:
         self.params = {}
         if param_file:
             self.load(param_file)
+        
+        # print('self.params', self.params)
 
     def load(self, param_file):
         """Load new values from file"""

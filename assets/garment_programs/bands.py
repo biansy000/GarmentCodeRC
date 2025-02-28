@@ -67,8 +67,12 @@ class StraightWB(BaseBand):
 
         self.define_panels()
 
-        self.front.translate_by([0, body['_waist_level'], 20])
-        self.back.translate_by([0, body['_waist_level'], -15]) 
+        if 'height' in design['waistband']:
+            self.front.translate_by([0, body['_waist_level'] + design['waistband']['height']['v'], 20])
+            self.back.translate_by([0, body['_waist_level'] + design['waistband']['height']['v'], -15]) 
+        else:
+            self.front.translate_by([0, body['_waist_level'], 20])
+            self.back.translate_by([0, body['_waist_level'], -15])
         
         self.stitching_rules = pyg.Stitches(
             (self.front.interfaces['right'], self.back.interfaces['right']),

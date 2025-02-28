@@ -312,7 +312,7 @@ if __name__ == '__main__':
         props.set_basic(
             design_file='./assets/design_params/default.yaml',
             body_default='mean_all',
-            body_samples='5000_body_shapes_and_measures', 
+            body_samples='/is/cluster/fast/sbian/data/673889', 
             size=args.size,
             name=f'{args.name}_{args.size}' if not args.batch_id else f'{args.name}_{args.size}_{args.batch_id}',
             to_subfolders=True)

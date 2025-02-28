@@ -65,6 +65,7 @@ class BasicPattern(object):
     def __init__(self, pattern_file=None):
         
         self.spec_file = pattern_file
+        print('pattern_file', pattern_file)
         
         if pattern_file is not None: # load pattern from file
             self.path = os.path.dirname(pattern_file)
@@ -86,6 +87,11 @@ class BasicPattern(object):
             ))
             return
 
+        if not os.path.exists(self.spec_file):
+            # self.spec_file = self.spec_file.replace('_specification_specification', '_specification')
+            new_name = self.spec_file.name.replace("_specification_specification", "_specification")
+            self.spec_file = self.spec_file.with_name(new_name)
+
         with open(self.spec_file, 'r') as f_json:
             self.spec = json.load(f_json)
         self.pattern = self.spec['pattern']
@@ -101,7 +107,7 @@ class BasicPattern(object):
 
         # log context
         if tag:
-            tag = '_' + tag
+            tag = '_' + str(tag)
         if to_subfolder:
             log_dir = os.path.join(path, self.name + tag)  # NOTE Added change
             try:
@@ -113,6 +119,21 @@ class BasicPattern(object):
         else:
             log_dir = path
             spec_file = os.path.join(path, (self.name + tag + '_specification.json'))
+
+        # Save specification
+        with open(spec_file, 'w') as f_json:
+            json.dump(self.spec, f_json, indent=2)
+        
+        return log_dir
+    
+    def serialize_custom(self, path, to_subfolder=True, tag='', empty_ok=False):
+
+        if not empty_ok and len(self.panel_order()) == 0:
+            raise RuntimeError(f'{self.__class__.__name__}::ERROR::Asked to save an empty pattern')
+
+        # log context
+        log_dir = path
+        spec_file = os.path.join(path, (tag + '_specification.json'))
 
         # Save specification
         with open(spec_file, 'w') as f_json:

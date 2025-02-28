@@ -1,5 +1,7 @@
 import numpy as np
+import sys
 
+sys.path.append('/is/cluster/fast/sbian/github/GarmentCodeV2/')
 import pygarment as pyg
 
 

@@ -7,6 +7,7 @@ import string
 import os
 import numpy as np
 from scipy.spatial.transform import Rotation as R
+import pickle
 
 # Correct dependencies on Win
 # https://stackoverflow.com/questions/46265677/get-cairosvg-working-in-windows
@@ -54,14 +55,17 @@ class VisPattern(core.ParametrizedPattern):
             self, path, to_subfolder=True, tag='', 
             with_3d=True, with_text=True, view_ids=True, 
             with_printable=False,
-            empty_ok=False):
+            empty_ok=False, no_save_anything=False):
 
         log_dir = super().serialize(path, to_subfolder, tag=tag, empty_ok=empty_ok)
         if len(self.panel_order()) == 0:  # If we are still here, but pattern is empty, don't generate an image
             return log_dir
-
+        
+        if no_save_anything:
+            return
+        
         if tag:
-            tag = '_' + tag
+            tag = '_' + str(tag)
         svg_file = os.path.join(log_dir, (self.name + tag + '_pattern.svg'))
         svg_printable_file = os.path.join(log_dir, (self.name + tag + '_print_pattern.svg'))
         png_file = os.path.join(log_dir, (self.name + tag + '_pattern.png')) 
@@ -77,6 +81,36 @@ class VisPattern(core.ParametrizedPattern):
 
         return log_dir
 
+    def serialize_custom(
+            self, path, to_subfolder=True, tag='', 
+            with_3d=True, with_text=False, view_ids=True, 
+            empty_ok=False, no_save_anything=False, save_separate_patterns=False):
+
+        log_dir = super().serialize_custom(path, to_subfolder, tag=tag, empty_ok=empty_ok)
+        if len(self.panel_order()) == 0:  # If we are still here, but pattern is empty, don't generate an image
+            return log_dir
+        
+        svg_file = os.path.join(log_dir, (tag + '_pattern.svg'))
+        png_file = os.path.join(log_dir, (tag + '_pattern.png')) 
+
+        # save visualtisation
+        if save_separate_patterns:
+            svg_file_sep = os.path.join(log_dir, tag, (tag + '_pattern.svg'))
+            png_file_sep = os.path.join(log_dir, tag, (tag + '_pattern.png'))
+
+            if not os.path.exists(os.path.join(log_dir, tag)):
+                os.makedirs(os.path.join(log_dir, tag))
+
+            self._save_as_image_separately(svg_file_sep, png_file_sep, False, view_ids)
+
+        if not no_save_anything:
+            self._save_as_image(svg_file, png_file, with_text, view_ids)
+            if with_3d:
+                png_3d_file = os.path.join(log_dir, (tag + '_3d_pattern.png'))
+                self._save_as_image_3D(png_3d_file)
+            
+        return log_dir
+    
     # -------- Drawing ---------
 
     def _verts_to_px_coords(self, vertices, translation_2d):
@@ -364,6 +398,92 @@ class VisPattern(core.ParametrizedPattern):
         # DPI = 96 (default) px/inch == 96/2.54 px/cm
         cairosvg.svg2pdf(
             url=svg_filename, write_to=pdf_filename, dpi=2.54*self.px_per_unit)
+
+    def _save_as_image_separately(
+            self, svg_filename, png_filename,
+            with_text=True, view_ids=True, 
+            margin=2):  
+        """
+            Saves current pattern in svg and png format for visualization
+
+            * with_text: include panel names
+            * view_ids: include ids of vertices and edges in the output image
+            * margin: small amount of free space around the svg drawing (to correctly display the line width)
+
+        """
+        # Get svg representation per panel
+        # Order by depth (=> most front panels render in front)
+        panel_order = self.panel_order()
+        panel_z = [self.pattern['panels'][pn]['translation'][-1] for pn in panel_order]
+        z_sorted_panels = [p for _, p in sorted(zip(panel_z, panel_order))]
+
+        # Get panel paths
+        for panel in z_sorted_panels:
+            if panel is not None:
+                #### 3D
+                p = self.pattern['panels'][panel]
+                rot = p['rotation']
+                tr = p['translation']
+                verts_2d = p['vertices']
+
+                # print('verts_2d', verts_2d)
+
+                verts_to_plot = copy(verts_2d)
+                verts_to_plot.append(verts_to_plot[0])
+
+                verts3d = np.vstack(tuple([self._point_in_3D(v, rot, tr) for v in verts_to_plot]))
+
+                #####
+                #####  2D
+                svg_filename_new = svg_filename.replace('.svg', f'_{panel}.svg')
+                png_filename_new = png_filename.replace('.png', f'_{panel}.png')
+
+                path, attr, front = self._draw_a_panel(panel, stroke_width=0.0)
+
+                arrdims = path.bbox()
+                dims = arrdims[1] - arrdims[0], arrdims[3] - arrdims[2]
+
+                viewbox = (
+                    arrdims[0] - margin, 
+                    arrdims[2] - margin, 
+                    dims[0] + 2 * margin, 
+                    dims[1] + 2 * margin
+                )
+
+                # "floor" level for a pattern
+                self.body_bottom_shift = -viewbox[0] * self.px_per_unit, -viewbox[1] * self.px_per_unit 
+                self.png_size = viewbox[2:]
+
+                # Save
+                attributes = [attr]
+                # print('attributes', attributes, path)
+
+                dwg = svgpath.wsvg(
+                    [path], 
+                    attributes=attributes, 
+                    margin_size=0,
+                    filename=svg_filename_new, 
+                    viewbox=viewbox, 
+                    dimensions=[str(viewbox[2]) + 'cm', str(viewbox[3]) + 'cm'],
+                    paths2Drawing=True)
+
+                dwg.save(pretty=True)
+
+                # to png
+                # NOTE: Assuming the pattern uses cm
+                # 3 px == 1 cm
+                # DPI = 96 (default) px/inch == 96/2.54 px/cm
+                cairosvg.svg2png(
+                    url=svg_filename_new, write_to=png_filename_new, dpi=10*self.px_per_unit)
+
+                pkl_path = png_filename_new.replace('.png', '.pkl')
+                saved_dict = {
+                    'verts3d': verts3d,
+                    'viewbox': viewbox
+                }
+                with open(pkl_path, 'wb') as f:
+                    pickle.dump(saved_dict, f)
+
 
 class RandomPattern(VisPattern):
     """

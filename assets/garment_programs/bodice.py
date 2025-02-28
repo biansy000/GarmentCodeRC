@@ -440,8 +440,14 @@ class Shirt(pyg.Component):
             design['left'] if design['left']['enable_asym']['v'] else design, 
             fitted=fitted).mirror()
 
-        self.stitching_rules.append((self.right.interfaces['front_in'],
-                                     self.left.interfaces['front_in']))
+        if ('openfront' not in design['shirt']) or (not design['shirt']['openfront']['v']):
+            self.stitching_rules.append((self.right.interfaces['front_in'],
+                                        self.left.interfaces['front_in']))
+        # else:
+            # assert design['shirt']['openfront']['v']
+            # assert design['meta']['wb']['v'] is None, design['meta']['wb']
+            # assert design['meta']['bottom']['v'] is None, design['meta']['bottom']
+
         self.stitching_rules.append((self.right.interfaces['back_in'],
                                      self.left.interfaces['back_in']))
 
