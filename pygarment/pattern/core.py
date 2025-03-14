@@ -65,7 +65,6 @@ class BasicPattern(object):
     def __init__(self, pattern_file=None):
         
         self.spec_file = pattern_file
-        print('pattern_file', pattern_file)
         
         if pattern_file is not None: # load pattern from file
             self.path = os.path.dirname(pattern_file)
@@ -94,6 +93,8 @@ class BasicPattern(object):
 
         with open(self.spec_file, 'r') as f_json:
             self.spec = json.load(f_json)
+        # print('self.spec', self.spec, self.spec_file)
+        # assert False
         self.pattern = self.spec['pattern']
         self.properties = self.spec['properties']  # mandatory part
 
