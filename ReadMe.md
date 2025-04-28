@@ -2,7 +2,7 @@
 
 # GarmentCodeRC: A Slightly Enhanced Version of GarmentCode for [ChatGarment](https://chatgarment.github.io/).
 
-GarmentCodeRC is a refined version of the original [GarmentCode](https://github.com/maria-korosteleva/GarmentCode), with added support for openfront garments & tighter pants & high-wist garments. It is used in [ChatGarment](https://chatgarment.github.io/).
+GarmentCodeRC is a refined version of the original [GarmentCode](https://github.com/maria-korosteleva/GarmentCode), with added support for openfront garments & tighter pants & high-waist garments. It is used in [ChatGarment](https://chatgarment.github.io/).
 
 Install and run GarmentCodeRC just as the original [GarmentCode](https://github.com/maria-korosteleva/GarmentCode). For detailed instructions, refer to the README.md file from the original repository below.
 
